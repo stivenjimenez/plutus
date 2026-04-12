@@ -98,7 +98,7 @@ export default function DashboardPage() {
             </div>
             <div className={styles.kpiCard}>
               <span className={styles.kpiLabel}>Deuda total</span>
-              <span className={styles.kpiValue} style={{ color: 'var(--warning)' }}>
+              <span className={`${styles.kpiValue} ${styles.warning}`}>
                 {formatCOP(dashboard?.debt_total_balance ?? 0)}
               </span>
               <span className={styles.kpiSub}>{dashboard?.debt_count ?? 0} deudas activas</span>

@@ -90,11 +90,12 @@
 }
 
 .kpiValue {
-  font-size: var(--text-lg);
+  font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
   color: var(--color-text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
   letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-none);
 }
 
 .kpiSub {
@@ -110,8 +111,9 @@
   letter-spacing: var(--tracking-wide);
 }
 
-.expense { color: var(--color-danger); }
-.income  { color: var(--color-success); }
+.expense  { color: var(--color-danger); }
+.income   { color: var(--color-success); }
+.warning  { color: var(--color-warning); }
 
 /* Sections */
 .section {

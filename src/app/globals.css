@@ -63,8 +63,9 @@
   /* =============================================
      TIPOGRAFÍA
      ============================================= */
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), 'Courier New', monospace;
+  --font-sans:    var(--font-space-grotesk), 'Space Grotesk', system-ui, sans-serif;
+  --font-mono:    var(--font-space-mono),   'Space Mono',    'Courier New', monospace;
+  --font-display: var(--font-doto),         'Doto',          monospace; /* dot-matrix — solo hero numbers 36px+ */
 
   /* Escala — Minor Third ratio (1.25×) anclado a 1rem base */
   --text-2xs:  0.625rem;  /* 10px — micro labels */
