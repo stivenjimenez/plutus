@@ -81,7 +81,7 @@ export default function DashboardPage() {
                 {dashboard?.budget_total != null ? formatCOP(dashboard.budget_total) : '—'}
               </span>
               {!dashboard?.budget_total && (
-                <Link href="/budget/new" className={styles.kpiAction}>+ Crear presupuesto</Link>
+                <Link href="/finance/budget/new" className={styles.kpiAction}>+ Crear presupuesto</Link>
               )}
             </div>
             <div className={styles.kpiCard}>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
               <h2 className={styles.sectionTitle}>Por categoría</h2>
               <p className={styles.empty}>
                 No hay distribución por categorías.{' '}
-                <Link href="/budget" className={styles.link}>Configurar presupuesto</Link>
+                <Link href="/finance/budget" className={styles.link}>Configurar presupuesto</Link>
               </p>
             </div>
           ) : null}

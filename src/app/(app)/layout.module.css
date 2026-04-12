@@ -1,11 +1,12 @@
 .shell {
   display: flex;
   min-height: 100vh;
+  background: var(--color-base);
 }
 
 .main {
   flex: 1;
   overflow-y: auto;
-  background: var(--background);
-  padding: 2rem;
+  background: var(--color-base);
+  padding: var(--space-8);
 }

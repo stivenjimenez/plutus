@@ -59,7 +59,7 @@ export default function NewBudgetPage() {
       return
     }
 
-    router.push('/budget')
+    router.push('/finance/budget')
   }
 
   const MONTHS = [

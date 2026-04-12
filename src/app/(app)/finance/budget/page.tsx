@@ -68,7 +68,7 @@ export default function BudgetPage() {
           <h1 className={styles.title}>Presupuesto</h1>
           <p className={styles.subtitle}>Distribuye tu ingreso del mes por categorías</p>
         </div>
-        <Link href="/budget/new" className={styles.addBtn}>
+        <Link href="/finance/budget/new" className={styles.addBtn}>
           + Nuevo presupuesto
         </Link>
       </div>
@@ -85,7 +85,7 @@ export default function BudgetPage() {
       ) : !budget ? (
         <div className={styles.emptyState}>
           <p>No hay presupuesto para {getMonthLabel(year, month)}.</p>
-          <Link href="/budget/new" className={styles.addBtn}>
+          <Link href="/finance/budget/new" className={styles.addBtn}>
             Crear presupuesto
           </Link>
         </div>

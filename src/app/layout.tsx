@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Plutus — Finanzas Personales",
-  description: "Gestiona tu presupuesto, gastos, suscripciones y deudas.",
+  title: "Plutus",
+  description: "Gestión de vida — finanzas, hábitos y más.",
 };
 
 export default function RootLayout({

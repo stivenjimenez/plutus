@@ -36,7 +36,7 @@ export default function LoginPage() {
       setServerError('Correo o contraseña incorrectos.')
       return
     }
-    router.push('/dashboard')
+    router.push('/finance/dashboard')
     router.refresh()
   }
 

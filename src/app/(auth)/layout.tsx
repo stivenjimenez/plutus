@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className={styles.card}>
         <div className={styles.logo}>
           <h1>Plutus</h1>
-          <p>Tu gestor de finanzas personales</p>
+          <p>Gestión de vida</p>
         </div>
         {children}
       </div>

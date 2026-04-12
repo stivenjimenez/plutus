@@ -1,80 +1,121 @@
 .sidebar {
-  width: 220px;
+  width: 14rem;
   min-height: 100vh;
-  background: var(--sidebar-bg);
+  background: var(--color-surface-0);
+  border-right: var(--space-px) solid var(--color-border);
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 0;
+  padding: var(--space-6) 0;
   flex-shrink: 0;
 }
 
+/* =============================================
+   BRAND
+   ============================================= */
 .brand {
-  padding: 0 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 1rem;
+  padding: 0 var(--space-5) var(--space-6);
+  border-bottom: var(--space-px) solid var(--color-border-subtle);
+  margin-bottom: var(--space-5);
 }
 
 .brandName {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
 }
 
+/* =============================================
+   MODULE GROUP
+   ============================================= */
+.moduleGroup {
+  padding: 0 var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.moduleLabel {
+  display: block;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  padding: 0 var(--space-2-5) var(--space-2);
+}
+
+/* =============================================
+   NAVIGATION
+   ============================================= */
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
-  padding: 0 0.75rem;
-  flex: 1;
+  gap: 0.0625rem;
 }
 
 .navItem {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  color: var(--sidebar-muted);
+  gap: var(--space-2-5);
+  padding: var(--space-2-5) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
   text-decoration: none;
-  transition: background 0.15s, color 0.15s;
+  transition: var(--transition-colors);
+  letter-spacing: var(--tracking-normal);
 }
 
 .navItem:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--sidebar-fg);
+  background: var(--color-accent-glow);
+  color: var(--color-text-primary);
 }
 
 .navItem.active {
-  background: var(--sidebar-active);
-  color: #fff;
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
 }
 
 .icon {
-  font-size: 1rem;
-  width: 1.25rem;
+  font-size: var(--text-base);
+  width: var(--space-5);
   text-align: center;
   flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+/* =============================================
+   FOOTER / LOGOUT
+   ============================================= */
+.spacer {
+  flex: 1;
+}
+
+.footer {
+  padding: 0 var(--space-3);
+  border-top: var(--space-px) solid var(--color-border-subtle);
+  padding-top: var(--space-4);
 }
 
 .logout {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 1.5rem;
-  margin: 0 0.75rem;
-  border-radius: 8px;
+  gap: var(--space-2-5);
+  padding: var(--space-2-5) var(--space-3);
+  border-radius: var(--radius-md);
   border: none;
   background: none;
-  color: var(--sidebar-muted);
-  font-size: 0.9rem;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  width: calc(100% - 1.5rem);
+  transition: var(--transition-colors);
+  width: 100%;
+  text-align: left;
 }
 
 .logout:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--sidebar-fg);
+  background: var(--color-accent-glow);
+  color: var(--color-text-secondary);
 }
