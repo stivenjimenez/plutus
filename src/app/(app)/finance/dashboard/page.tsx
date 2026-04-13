@@ -8,13 +8,13 @@ import { formatCOP } from '@/lib/currency'
 import type { CategorySpending } from '@/types'
 import styles from './page.module.css'
 
-function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
+function ProgressBar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0
   return (
     <div className={styles.progressTrack}>
       <div
-        className={styles.progressFill}
-        style={{ width: `${pct}%`, background: pct >= 90 ? 'var(--danger)' : color }}
+        className={`${styles.progressFill} ${pct >= 90 ? styles.progressDanger : ''}`}
+        style={{ width: `${pct}%` }}
       />
     </div>
   )
@@ -25,15 +25,12 @@ function CategoryCard({ item }: { item: CategorySpending }) {
   return (
     <div className={styles.catCard}>
       <div className={styles.catHeader}>
-        <div className={styles.catName}>
-          <span className={styles.catDot} style={{ background: item.category_color }} />
-          {item.category_name}
-        </div>
+        <span className={styles.catName}>{item.category_name}</span>
         <span className={`${styles.catRemaining} ${overBudget ? styles.over : ''}`}>
           {overBudget ? '-' : ''}{formatCOP(Math.abs(item.remaining))} restante
         </span>
       </div>
-      <ProgressBar value={item.spent} max={item.allocated} color={item.category_color} />
+      <ProgressBar value={item.spent} max={item.allocated} />
       <div className={styles.catFooter}>
         <span>{formatCOP(item.spent)} gastado</span>
         <span>{formatCOP(item.allocated)} asignado</span>
@@ -133,7 +130,6 @@ export default function DashboardPage() {
                 {dashboard!.upcoming_subscriptions.map((sub) => (
                   <div key={sub.id} className={styles.subItem}>
                     <div className={styles.subName}>
-                      {sub.category?.icon && <span>{sub.category.icon}</span>}
                       <span>{sub.name}</span>
                     </div>
                     <div className={styles.subRight}>

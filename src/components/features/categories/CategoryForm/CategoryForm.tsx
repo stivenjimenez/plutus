@@ -16,11 +16,7 @@ export default function CategoryForm({ initial, onSave, onCancel }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const { register, handleSubmit, formState: { errors } } = useForm<CategoryInsert>({
-    defaultValues: {
-      name: initial?.name ?? '',
-      color: initial?.color ?? '#6366f1',
-      icon: initial?.icon ?? '',
-    },
+    defaultValues: { name: initial?.name ?? '' },
   })
 
   async function onSubmit(data: CategoryInsert) {
@@ -43,25 +39,9 @@ export default function CategoryForm({ initial, onSave, onCancel }: Props) {
           id="cat-name"
           {...register('name', { required: 'El nombre es obligatorio' })}
           placeholder="Ej: Alimentación"
+          autoFocus
         />
         {errors.name && <span className={styles.error}>{errors.name.message}</span>}
-      </div>
-
-      <div className={styles.row}>
-        <div className={styles.field}>
-          <label htmlFor="cat-color">Color</label>
-          <input id="cat-color" type="color" {...register('color')} className={styles.colorInput} />
-        </div>
-
-        <div className={styles.field} style={{ flex: 1 }}>
-          <label htmlFor="cat-icon">Ícono (emoji)</label>
-          <input
-            id="cat-icon"
-            {...register('icon')}
-            placeholder="🛒"
-            maxLength={4}
-          />
-        </div>
       </div>
 
       {error && <p className={styles.serverError}>{error}</p>}

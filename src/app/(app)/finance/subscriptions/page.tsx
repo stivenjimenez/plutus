@@ -9,19 +9,19 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
-import { useForm } from 'react-hook-form'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
-import { useCategories } from '@/hooks/useCategories'
 import { formatCOP } from '@/lib/currency'
 import { BILLING_CYCLE_LABELS, SUBSCRIPTION_STATUS_LABELS } from '@/lib/constants'
-import { todayISO } from '@/lib/dates'
 import type { Subscription, SubscriptionInsert } from '@/types'
+import SubscriptionDrawer from '@/components/features/subscriptions/SubscriptionDrawer/SubscriptionDrawer'
 import styles from './page.module.css'
 
-const STATUS_COLORS: Record<string, string> = {
-  active: 'var(--success)',
-  paused: 'var(--warning)',
-  cancelled: 'var(--muted)',
+type FormFields = SubscriptionInsert & { amount: number }
+
+const STATUS_CLASS: Record<string, string> = {
+  active: 'statusActive',
+  paused: 'statusPaused',
+  cancelled: 'statusCancelled',
 }
 
 const columns: ColumnDef<Subscription>[] = [
@@ -30,7 +30,7 @@ const columns: ColumnDef<Subscription>[] = [
     id: 'category',
     header: 'Categoría',
     cell: ({ row }) =>
-      row.original.category ? `${row.original.category.icon ?? ''} ${row.original.category.name}` : '—',
+      row.original.category ? row.original.category.name : '—',
   },
   {
     accessorKey: 'amount',
@@ -50,19 +50,16 @@ const columns: ColumnDef<Subscription>[] = [
     accessorKey: 'status',
     header: 'Estado',
     cell: (info) => (
-      <span style={{ color: STATUS_COLORS[info.getValue() as string], fontWeight: 600, fontSize: '0.8125rem' }}>
+      <span className={styles[STATUS_CLASS[info.getValue() as string] ?? 'statusCancelled']}>
         {SUBSCRIPTION_STATUS_LABELS[info.getValue() as string] ?? info.getValue()}
       </span>
     ),
   },
 ]
 
-type FormFields = SubscriptionInsert & { amount: number }
-
 export default function SubscriptionsPage() {
   const { subscriptions, isLoading, mutate } = useSubscriptions()
-  const { categories } = useCategories()
-  const [showForm, setShowForm] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [editing, setEditing] = useState<Subscription | null>(null)
   const [sorting, setSorting] = useState<SortingState>([])
 
@@ -75,31 +72,22 @@ export default function SubscriptionsPage() {
     getSortedRowModel: getSortedRowModel(),
   })
 
-  const { register, handleSubmit, reset } = useForm<FormFields>({
-    defaultValues: { status: 'active', billing_cycle: 'monthly', next_billing_date: todayISO() },
-  })
-
   function openCreate() {
-    reset({ status: 'active', billing_cycle: 'monthly', next_billing_date: todayISO(), amount: 0 })
     setEditing(null)
-    setShowForm(true)
+    setDrawerOpen(true)
   }
 
   function openEdit(sub: Subscription) {
-    reset({
-      name: sub.name,
-      amount: sub.amount,
-      billing_cycle: sub.billing_cycle,
-      next_billing_date: sub.next_billing_date,
-      status: sub.status,
-      category_id: sub.category_id,
-      notes: sub.notes ?? '',
-    })
     setEditing(sub)
-    setShowForm(true)
+    setDrawerOpen(true)
   }
 
-  async function onSubmit(data: FormFields) {
+  function closeDrawer() {
+    setDrawerOpen(false)
+    setEditing(null)
+  }
+
+  async function handleSubmit(data: FormFields) {
     const payload = { ...data, amount: Number(data.amount) }
     if (editing) {
       await fetch(`/api/subscriptions/${editing.id}`, {
@@ -115,7 +103,7 @@ export default function SubscriptionsPage() {
       })
     }
     await mutate()
-    setShowForm(false)
+    closeDrawer()
   }
 
   async function handleDelete(id: string) {
@@ -130,73 +118,15 @@ export default function SubscriptionsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Suscripciones</h1>
-          <p className={styles.subtitle}>
-            Total activas: <strong>{formatCOP(totalActive)}</strong>/mes
-          </p>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.title}>Suscripciones activas</h1>
+          <div className={styles.heroRow}>
+            <span className={styles.heroAmount}>{formatCOP(totalActive)}</span>
+            <span className={styles.heroUnit}>/mes</span>
+          </div>
         </div>
         <button onClick={openCreate} className={styles.addBtn}>+ Nueva suscripción</button>
       </div>
-
-      {showForm && (
-        <div className={styles.formCard}>
-          <h2 className={styles.formTitle}>{editing ? 'Editar suscripción' : 'Nueva suscripción'}</h2>
-          <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-            <div className={styles.formRow}>
-              <div className={styles.field}>
-                <label>Nombre</label>
-                <input {...register('name', { required: true })} placeholder="Netflix, Spotify..." />
-              </div>
-              <div className={styles.field}>
-                <label>Monto (COP)</label>
-                <input type="number" min="0" {...register('amount', { required: true, valueAsNumber: true })} placeholder="0" />
-              </div>
-            </div>
-            <div className={styles.formRow}>
-              <div className={styles.field}>
-                <label>Ciclo de cobro</label>
-                <select {...register('billing_cycle')}>
-                  {Object.entries(BILLING_CYCLE_LABELS).map(([val, label]) => (
-                    <option key={val} value={val}>{label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.field}>
-                <label>Próximo cobro</label>
-                <input type="date" {...register('next_billing_date', { required: true })} />
-              </div>
-            </div>
-            <div className={styles.formRow}>
-              <div className={styles.field}>
-                <label>Estado</label>
-                <select {...register('status')}>
-                  {Object.entries(SUBSCRIPTION_STATUS_LABELS).map(([val, label]) => (
-                    <option key={val} value={val}>{label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.field}>
-                <label>Categoría</label>
-                <select {...register('category_id')}>
-                  <option value="">Sin categoría</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className={styles.field}>
-              <label>Notas (opcional)</label>
-              <input {...register('notes')} placeholder="..." />
-            </div>
-            <div className={styles.formActions}>
-              <button type="button" onClick={() => setShowForm(false)} className={styles.cancelBtn}>Cancelar</button>
-              <button type="submit" className={styles.submitBtn}>{editing ? 'Guardar' : 'Agregar'}</button>
-            </div>
-          </form>
-        </div>
-      )}
 
       {isLoading ? (
         <p className={styles.empty}>Cargando...</p>
@@ -237,6 +167,14 @@ export default function SubscriptionsPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {drawerOpen && (
+        <SubscriptionDrawer
+          editing={editing}
+          onClose={closeDrawer}
+          onSubmit={handleSubmit}
+        />
       )}
     </div>
   )

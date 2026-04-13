@@ -3,7 +3,6 @@ import type { Subscription } from './subscription'
 export interface CategorySpending {
   category_id: string
   category_name: string
-  category_color: string
   allocated: number
   spent: number
   remaining: number

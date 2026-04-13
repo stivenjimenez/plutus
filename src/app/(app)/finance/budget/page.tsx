@@ -7,6 +7,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { getCurrentYearMonth, getMonthLabel, prevMonth, nextMonth } from '@/lib/dates'
 import { formatCOP } from '@/lib/currency'
 import type { Category } from '@/types'
+import Drawer from '@/components/layout/Drawer/Drawer'
 import styles from './page.module.css'
 
 export default function BudgetPage() {
@@ -16,7 +17,7 @@ export default function BudgetPage() {
   const { budget, isLoading, mutate } = useBudget(year, month)
   const { categories } = useCategories()
 
-  const [editingAllocation, setEditingAllocation] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [allocValues, setAllocValues] = useState<Record<string, string>>({})
 
   function handlePrev() {
@@ -37,7 +38,7 @@ export default function BudgetPage() {
       initial[bc.category_id] = String(bc.allocated)
     })
     setAllocValues(initial)
-    setEditingAllocation(true)
+    setDrawerOpen(true)
   }
 
   async function saveAllocations() {
@@ -55,7 +56,7 @@ export default function BudgetPage() {
       body: JSON.stringify({ allocations }),
     })
     await mutate()
-    setEditingAllocation(false)
+    setDrawerOpen(false)
   }
 
   const totalAllocated = budget?.budget_categories.reduce((s, bc) => s + bc.allocated, 0) ?? 0
@@ -113,29 +114,47 @@ export default function BudgetPage() {
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>Distribución por categoría</h2>
-              {!editingAllocation ? (
-                <button onClick={startEditAllocations} className={styles.editBtn}>
-                  Editar distribución
-                </button>
+              <button onClick={startEditAllocations} className={styles.editBtn}>
+                Editar distribución
+              </button>
+            </div>
+
+            <div className={styles.allocList}>
+              {budget.budget_categories.length === 0 ? (
+                <p className={styles.empty}>No hay distribución definida.</p>
               ) : (
-                <div className={styles.editActions}>
-                  <button onClick={() => setEditingAllocation(false)} className={styles.cancelBtn}>
+                budget.budget_categories.map((bc) => (
+                  <div key={bc.id} className={styles.allocItem}>
+                    <div className={styles.catInfo}>
+                      <span className={styles.catName}>{bc.category.name}</span>
+                    </div>
+                    <span className={styles.allocAmount}>{formatCOP(bc.allocated)}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {drawerOpen && (
+            <Drawer
+              title="Editar distribución"
+              size="wide"
+              onClose={() => setDrawerOpen(false)}
+              footer={
+                <>
+                  <button onClick={() => setDrawerOpen(false)} className={styles.cancelBtn}>
                     Cancelar
                   </button>
                   <button onClick={saveAllocations} className={styles.saveBtn}>
                     Guardar
                   </button>
-                </div>
-              )}
-            </div>
-
-            {editingAllocation ? (
+                </>
+              }
+            >
               <div className={styles.allocForm}>
                 {categories.map((cat: Category) => (
                   <div key={cat.id} className={styles.allocRow}>
                     <div className={styles.catInfo}>
-                      <span className={styles.swatch} style={{ background: cat.color }} />
-                      {cat.icon && <span>{cat.icon}</span>}
                       <span>{cat.name}</span>
                     </div>
                     <input
@@ -151,25 +170,8 @@ export default function BudgetPage() {
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className={styles.allocList}>
-                {budget.budget_categories.length === 0 ? (
-                  <p className={styles.empty}>No hay distribución definida.</p>
-                ) : (
-                  budget.budget_categories.map((bc) => (
-                    <div key={bc.id} className={styles.allocItem}>
-                      <div className={styles.catInfo}>
-                        <span className={styles.swatch} style={{ background: bc.category.color }} />
-                        {bc.category.icon && <span>{bc.category.icon}</span>}
-                        <span className={styles.catName}>{bc.category.name}</span>
-                      </div>
-                      <span className={styles.allocAmount}>{formatCOP(bc.allocated)}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
+            </Drawer>
+          )}
         </>
       )}
     </div>

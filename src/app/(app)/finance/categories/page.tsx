@@ -1,16 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+} from '@tanstack/react-table'
 import { useCategories } from '@/hooks/useCategories'
 import CategoryForm from '@/components/features/categories/CategoryForm/CategoryForm'
+import Drawer from '@/components/layout/Drawer/Drawer'
 import type { Category, CategoryInsert } from '@/types'
 import styles from './page.module.css'
 
+const col = createColumnHelper<Category>()
+
 export default function CategoriesPage() {
   const { categories, isLoading, mutate } = useCategories()
-  const [showForm, setShowForm] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [editing, setEditing] = useState<Category | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
 
   async function handleCreate(data: CategoryInsert) {
     await fetch('/api/categories', {
@@ -19,7 +29,7 @@ export default function CategoriesPage() {
       body: JSON.stringify(data),
     })
     await mutate()
-    setShowForm(false)
+    setDrawerOpen(false)
   }
 
   async function handleEdit(data: CategoryInsert) {
@@ -40,6 +50,66 @@ export default function CategoriesPage() {
     setDeleting(null)
   }
 
+  const columns = useMemo(() => [
+    col.accessor('name', {
+      header: 'Nombre',
+      cell: (info) => <span className={styles.cellName}>{info.getValue()}</span>,
+    }),
+    col.accessor('created_at', {
+      header: 'Creada',
+      cell: (info) => (
+        <span className={styles.cellMono}>
+          {new Date(info.getValue()).toLocaleDateString('es-CO', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </span>
+      ),
+    }),
+    col.display({
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <div className={styles.cellActions}>
+          <button
+            className={styles.editBtn}
+            onClick={() => { setEditing(row.original); setDrawerOpen(false) }}
+          >
+            Editar
+          </button>
+          <button
+            className={styles.deleteBtn}
+            onClick={() => handleDelete(row.original.id)}
+            disabled={deleting === row.original.id}
+          >
+            {deleting === row.original.id ? '...' : 'Eliminar'}
+          </button>
+        </div>
+      ),
+    }),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [deleting])
+
+  const filtered = useMemo(
+    () => categories.filter((c) => c.name.toLowerCase().includes(search.toLowerCase())),
+    [categories, search]
+  )
+
+  const table = useReactTable({
+    data: filtered,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  const drawerTitle = editing ? 'Editar categoría' : 'Nueva categoría'
+  const isDrawerOpen = drawerOpen || editing !== null
+
+  function closeDrawer() {
+    setDrawerOpen(false)
+    setEditing(null)
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -47,58 +117,63 @@ export default function CategoriesPage() {
           <h1 className={styles.title}>Categorías</h1>
           <p className={styles.subtitle}>Organiza tus gastos e ingresos</p>
         </div>
-        <button className={styles.addBtn} onClick={() => setShowForm(true)}>
+        <button className={styles.addBtn} onClick={() => { setEditing(null); setDrawerOpen(true) }}>
           + Nueva categoría
         </button>
       </div>
 
-      {(showForm || editing) && (
-        <div className={styles.formCard}>
-          <h2 className={styles.formTitle}>
-            {editing ? 'Editar categoría' : 'Nueva categoría'}
-          </h2>
-          <CategoryForm
-            initial={editing ?? undefined}
-            onSave={editing ? handleEdit : handleCreate}
-            onCancel={() => { setShowForm(false); setEditing(null) }}
-          />
-        </div>
-      )}
+      <div className={styles.toolbar}>
+        <input
+          className={styles.search}
+          placeholder="Buscar categoría..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
       {isLoading ? (
         <p className={styles.empty}>Cargando...</p>
       ) : categories.length === 0 ? (
         <p className={styles.empty}>No tienes categorías aún. Crea la primera.</p>
+      ) : filtered.length === 0 ? (
+        <p className={styles.empty}>Sin resultados para &ldquo;{search}&rdquo;.</p>
       ) : (
-        <div className={styles.grid}>
-          {categories.map((cat) => (
-            <div key={cat.id} className={styles.card}>
-              <div className={styles.cardLeft}>
-                <span
-                  className={styles.swatch}
-                  style={{ background: cat.color }}
-                />
-                {cat.icon && <span className={styles.catIcon}>{cat.icon}</span>}
-                <span className={styles.catName}>{cat.name}</span>
-              </div>
-              <div className={styles.cardActions}>
-                <button
-                  className={styles.editBtn}
-                  onClick={() => { setEditing(cat); setShowForm(false) }}
-                >
-                  Editar
-                </button>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDelete(cat.id)}
-                  disabled={deleting === cat.id}
-                >
-                  {deleting === cat.id ? '...' : 'Eliminar'}
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              {table.getHeaderGroups().map((hg) => (
+                <tr key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <th key={header.id} className={styles.th}>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className={styles.tr}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className={styles.td}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      )}
+
+      {isDrawerOpen && (
+        <Drawer title={drawerTitle} onClose={closeDrawer}>
+          <CategoryForm
+            initial={editing ?? undefined}
+            onSave={editing ? handleEdit : handleCreate}
+            onCancel={closeDrawer}
+          />
+        </Drawer>
       )}
     </div>
   )

@@ -66,13 +66,12 @@ export async function GET(request: Request) {
   const categorySpending: CategorySpending[] = (budget?.budget_categories ?? []).map((bc: {
     category_id: string
     allocated: number
-    category: { name: string; color: string }
+    category: { name: string }
   }) => {
     const spent = spendingByCategory[bc.category_id] ?? 0
     return {
       category_id: bc.category_id,
       category_name: bc.category.name,
-      category_color: bc.category.color,
       allocated: bc.allocated,
       spent,
       remaining: bc.allocated - spent,

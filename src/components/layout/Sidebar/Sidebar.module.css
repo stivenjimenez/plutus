@@ -78,11 +78,9 @@
 }
 
 .icon {
-  font-size: var(--text-base);
-  width: var(--space-5);
-  text-align: center;
+  width: var(--space-4);
+  height: var(--space-4);
   flex-shrink: 0;
-  font-family: var(--font-mono);
 }
 
 /* =============================================

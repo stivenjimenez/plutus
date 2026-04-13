@@ -21,13 +21,13 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { name, color, icon } = body
+  const { name } = body
 
   if (!name?.trim()) return NextResponse.json({ error: 'El nombre es obligatorio' }, { status: 400 })
 
   const { data, error } = await supabase
     .from('categories')
-    .insert({ user_id: user.id, name: name.trim(), color: color || '#6366f1', icon: icon || null })
+    .insert({ user_id: user.id, name: name.trim() })
     .select()
     .single()
 

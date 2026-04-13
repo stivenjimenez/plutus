@@ -8,12 +8,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { id } = await params
   const body = await request.json()
-  const { name, color, icon } = body
+  const { name } = body
 
   const updates: Record<string, unknown> = {}
   if (name !== undefined) updates.name = name.trim()
-  if (color !== undefined) updates.color = color
-  if (icon !== undefined) updates.icon = icon
 
   const { data, error } = await supabase
     .from('categories')

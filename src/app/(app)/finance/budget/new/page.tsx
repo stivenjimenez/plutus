@@ -125,8 +125,6 @@ export default function NewBudgetPage() {
             {categories.map((cat: Category) => (
               <div key={cat.id} className={styles.allocRow}>
                 <div className={styles.catInfo}>
-                  <span className={styles.swatch} style={{ background: cat.color }} />
-                  {cat.icon && <span>{cat.icon}</span>}
                   <span>{cat.name}</span>
                 </div>
                 <input

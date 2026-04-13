@@ -2,22 +2,42 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import {
+  LayoutDashboard,
+  Wallet,
+  ArrowUpDown,
+  RefreshCw,
+  CircleMinus,
+  Tag,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import styles from './Sidebar.module.css'
 
-const MODULES = [
+interface Section {
+  href: string
+  label: string
+  Icon: LucideIcon
+}
+
+interface Module {
+  id: string
+  label: string
+  sections: Section[]
+}
+
+const MODULES: Module[] = [
   {
     id: 'finance',
     label: 'Finanzas',
-    icon: '◈',
-    href: '/finance/dashboard',
     sections: [
-      { href: '/finance/dashboard',     label: 'Resumen',       icon: '◈' },
-      { href: '/finance/budget',        label: 'Presupuesto',   icon: '◉' },
-      { href: '/finance/transactions',  label: 'Transacciones', icon: '↕' },
-      { href: '/finance/subscriptions', label: 'Suscripciones', icon: '⟳' },
-      { href: '/finance/debts',         label: 'Deudas',        icon: '⊖' },
-      { href: '/finance/categories',    label: 'Categorías',    icon: '⊞' },
+      { href: '/finance/dashboard',     label: 'Resumen',       Icon: LayoutDashboard },
+      { href: '/finance/budget',        label: 'Presupuesto',   Icon: Wallet          },
+      { href: '/finance/transactions',  label: 'Transacciones', Icon: ArrowUpDown     },
+      { href: '/finance/subscriptions', label: 'Suscripciones', Icon: RefreshCw       },
+      { href: '/finance/debts',         label: 'Deudas',        Icon: CircleMinus     },
+      { href: '/finance/categories',    label: 'Categorías',    Icon: Tag             },
     ],
   },
 ]
@@ -25,8 +45,6 @@ const MODULES = [
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
-
-  const activeModule = MODULES.find((m) => pathname.startsWith(`/${m.id}`))
 
   async function handleLogout() {
     const supabase = createClient()
@@ -41,24 +59,22 @@ export default function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      {/* Brand */}
       <div className={styles.brand}>
         <span className={styles.brandName}>Plutus</span>
       </div>
 
-      {/* Module sections */}
       {MODULES.map((module) => (
         <div key={module.id} className={styles.moduleGroup}>
           <span className={styles.moduleLabel}>{module.label}</span>
           <nav className={styles.nav}>
-            {module.sections.map((item) => (
+            {module.sections.map(({ href, label, Icon }) => (
               <Link
-                key={item.href}
-                href={item.href}
-                className={`${styles.navItem} ${isActiveSection(item.href) ? styles.active : ''}`}
+                key={href}
+                href={href}
+                className={`${styles.navItem} ${isActiveSection(href) ? styles.active : ''}`}
               >
-                <span className={styles.icon}>{item.icon}</span>
-                <span>{item.label}</span>
+                <Icon size={16} strokeWidth={1.5} className={styles.icon} />
+                <span>{label}</span>
               </Link>
             ))}
           </nav>
@@ -69,7 +85,7 @@ export default function Sidebar() {
 
       <div className={styles.footer}>
         <button onClick={handleLogout} className={styles.logout}>
-          <span className={styles.icon}>⎋</span>
+          <LogOut size={16} strokeWidth={1.5} className={styles.icon} />
           <span>Cerrar sesión</span>
         </button>
       </div>

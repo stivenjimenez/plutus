@@ -32,22 +32,7 @@ const columns: ColumnDef<Transaction>[] = [
     id: 'category',
     header: 'Categoría',
     cell: ({ row }) =>
-      row.original.category ? (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: row.original.category.color,
-              display: 'inline-block',
-            }}
-          />
-          {row.original.category.icon} {row.original.category.name}
-        </span>
-      ) : (
-        <span style={{ color: 'var(--muted)' }}>Sin categoría</span>
-      ),
+      row.original.category ? row.original.category.name : '—',
   },
   {
     accessorKey: 'type',
@@ -201,7 +186,7 @@ export default function TransactionsPage() {
                 <select {...register('category_id')}>
                   <option value="">Sin categoría</option>
                   {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
                 </select>
               </div>
