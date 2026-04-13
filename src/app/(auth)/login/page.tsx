@@ -3,7 +3,6 @@
 import { useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import styles from './page.module.css'
 
@@ -72,10 +71,6 @@ export default function LoginPage() {
         {loading ? 'Ingresando...' : 'Ingresar'}
       </button>
 
-      <p className={styles.footer}>
-        ¿No tienes cuenta?{' '}
-        <Link href="/register">Regístrate</Link>
-      </p>
     </form>
   )
 }
